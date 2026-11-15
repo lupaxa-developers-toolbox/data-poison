@@ -1,0 +1,29 @@
+"""Documented defaults and hard safety ceilings.
+
+Callers may raise a limit up to the hard ceiling. Nothing in a profile,
+recipe, or flag may pass that ceiling.
+"""
+
+from __future__ import annotations
+
+DEFAULT_COUNT = 1
+DEFAULT_PROFILE = "awkward"
+DEFAULT_FORMAT = "text"
+DEFAULT_MAX_BYTES = 1 << 20
+DEFAULT_MAX_DEPTH = 32
+DEFAULT_MAX_TOTAL_BYTES = 100 << 20
+DEFAULT_MAX_CASES = 10_000
+DEFAULT_TIMEOUT_SECONDS = 5.0
+DEFAULT_TOTAL_TIMEOUT_SECONDS = 120.0
+DEFAULT_CAPTURE_BYTES = 1 << 20
+DEFAULT_CONCURRENCY = 1
+
+HARD_MAX_BYTES = 32 << 20
+HARD_MAX_DEPTH = 128
+HARD_MAX_TOTAL_BYTES = 512 << 20
+HARD_MAX_CASES = 100_000
+HARD_TIMEOUT_SECONDS = 300.0
+HARD_CAPTURE_BYTES = 16 << 20
+HARD_CONCURRENCY = 8
+HARD_MUTATIONS = 16
+HARD_SHRINK_ATTEMPTS = 5_000
