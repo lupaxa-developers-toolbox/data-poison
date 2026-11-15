@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-__version__ = "0.1.0-rc1"
+__version__ = "0.1.0"
 
 CATALOGUE_VERSION = "1"
 
