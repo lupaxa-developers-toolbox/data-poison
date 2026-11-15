@@ -102,14 +102,12 @@ def shrink_payload(
     used = 0
     reductions = 0
 
-    def interesting(candidate: bytes) -> bool:
-        nonlocal used
-        if used >= attempts:
-            return False
+    def consider(candidate: bytes) -> bool:
+        """Return whether this candidate still fails, reusing a cached result."""
         digest = hashlib.sha256(candidate).hexdigest()
-        if digest in cache:
-            return cache[digest]
-        used += 1
+        cached = cache.get(digest)
+        if cached is not None:
+            return cached
         answer = _fails(candidate, command, predicate, timeout, origin)
         cache[digest] = answer
         return answer
@@ -121,21 +119,35 @@ def shrink_payload(
         chunk = max(1, size // granularity)
         reduced = False
         start = 0
-        while start < size and used < attempts:
+        while start < size:
+            if used >= attempts:
+                break
             stop = min(size, start + chunk)
             candidate = current[:start] + current[stop:]
-            if candidate and interesting(candidate):
-                current = candidate
-                reductions += 1
-                reduced = True
-                granularity = max(2, granularity - 1)
-                break
+            if candidate:
+                digest = hashlib.sha256(candidate).hexdigest()
+                fresh = digest not in cache
+                if fresh:
+                    used += 1
+                if consider(candidate):
+                    current = candidate
+                    reductions += 1
+                    reduced = True
+                    granularity = max(2, granularity - 1)
+                    break
             start = stop
         if not reduced:
             if granularity >= len(current):
                 break
             granularity = min(len(current), granularity * 2)
-    second = interesting(current)
+    final_digest = hashlib.sha256(current).hexdigest()
+    if final_digest in cache:
+        second = cache[final_digest]
+    elif used < attempts:
+        used += 1
+        second = consider(current)
+    else:
+        second = False
     return ShrinkReport(
         original_size=len(payload),
         final_size=len(current),
